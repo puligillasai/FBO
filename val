@@ -1,0 +1,19 @@
+fullnameOverride: fluent-bit
+
+backend:
+  type: ""              # disables built-in ES backend
+elasticsearch:
+  enabled: false
+
+extraVolumes:
+  - name: fb-custom-conf
+    configMap:
+      name: fb-custom-conf
+      items:
+        - key: fluent-bit.conf
+          path: fluent-bit.conf
+
+extraVolumeMounts:
+  - name: fb-custom-conf
+    mountPath: /fluent-bit/etc
+    readOnly: true
