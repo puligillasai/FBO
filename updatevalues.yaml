@@ -1,0 +1,15 @@
+config:
+  existingConfigMap: jpuv-fluentbit
+  create: false
+
+# Depending on chart version, disable the built-in outputs.
+# One of the following usually applies; include the one your chart supports:
+
+backend:
+  type: ""        # disables the default 'es' backend
+
+outputs: ""       # or explicitly make outputs empty
+
+# (If your chart has 'elasticsearch.enabled', set it to false)
+elasticsearch:
+  enabled: false
