@@ -1,0 +1,40 @@
+# We’ll mount our own config from the ConfigMap above
+config:
+  enabled: false
+
+# Mount the ConfigMap containing jpuv.conf
+extraVolumes:
+  - name: jpuv-config
+    configMap:
+      name: jpuv-fluentbit
+
+# Mount the Secret as environment variables for ${HTTP_USER}/${HTTP_PASSWD}
+extraEnv:
+  - name: HTTP_USER
+    valueFrom:
+      secretKeyRef:
+        name: jpuv-fluentbit-auth
+        key: HTTP_USER
+  - name: HTTP_PASSWD
+    valueFrom:
+      secretKeyRef:
+        name: jpuv-fluentbit-auth
+        key: HTTP_PASSWD
+
+extraVolumeMounts:
+  - name: jpuv-config
+    mountPath: /fluent-bit/etc/jpuv.conf
+    subPath: jpuv.conf
+
+# Make Fluent Bit use our config file
+extraArgs:
+  - -c
+  - /fluent-bit/etc/jpuv.conf
+
+# (Optional) Pin a recent stable image
+image:
+  repository: cr.fluentbit.io/fluent/fluent-bit
+  tag: 3.0.4
+
+# (Optional) keep default probes that hit http://127.0.0.1:2020/api/v1/health
+# No need to override unless you’ve customized ports/paths elsewhere
