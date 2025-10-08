@@ -1,15 +1,29 @@
-config:
-  existingConfigMap: jpuv-fluentbit
-  create: false
+kubectl -n jpuv-system create configmap fb-custom-conf \
+  --from-literal=fluent-bit.conf="$(cat <<'EOF'
+[SERVICE]
+    Flush        1
+    Daemon       Off
+    Log_Level    info
+    HTTP_Server  On
+    HTTP_Listen  0.0.0.0
+    HTTP_Port    2020
 
-# Depending on chart version, disable the built-in outputs.
-# One of the following usually applies; include the one your chart supports:
+[INPUT]
+    Name            tail
+    Path            /var/log/containers/*.log
+    Tag             kube.*
+    Mem_Buf_Limit   5MB
+    Skip_Long_Lines On
 
-backend:
-  type: ""        # disables the default 'es' backend
-
-outputs: ""       # or explicitly make outputs empty
-
-# (If your chart has 'elasticsearch.enabled', set it to false)
-elasticsearch:
-  enabled: false
+[OUTPUT]
+    Name           opensearch
+    Match          *
+    Host           vpc-<your-opensearch-domain>.us-east-1.es.amazonaws.com
+    Port           443
+    Index          jpuv-%Y.%m.%d
+    TLS            On
+    TLS.Verify     Off
+    HTTP_User      jpuvadmin
+    HTTP_Passwd    Search1!
+EOF
+)"
