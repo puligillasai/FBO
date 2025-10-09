@@ -1,0 +1,14 @@
+# values.yaml
+
+# This tells Helm to use the ConfigMap you created. It must not be indented.
+existingConfigMap: "jpuv-fluentbit"
+
+# This prevents the chart's default Elasticsearch output from being created.
+config:
+  outputs: ""
+
+# This loads your secret's keys (opensearch_user, etc.) as environment variables
+# into the Fluent Bit container.
+envFrom:
+  - secretRef:
+      name: opensearch-credentials
